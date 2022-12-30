@@ -15,9 +15,12 @@
  */
 package io.netty.example.echo;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.example.packages.TcpPackage;
 
 /**
  * Handler implementation for the echo server.
@@ -28,17 +31,42 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         ctx.write(msg);
+        System.out.println("channelRead");
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
         ctx.flush();
+        System.out.println("channelReadComplete");
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        int i = 0;
+        System.out.println("connect success address: " + ctx.channel().remoteAddress());
+        // todo 这里不知为啥发送后，client端会监听不到read 操作
+        while(true) {
+            if (ctx.channel().isActive()) {
+                String msg = "send msg to client part " + ++i;
+                ctx.channel().writeAndFlush(buildPackage(msg));
+            }
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         // Close the connection when an exception is raised.
         cause.printStackTrace();
+        System.out.println("exceptionCaught " + cause.getMessage());
         ctx.close();
     }
+
+    private TcpPackage buildPackage(Object content) {
+        TcpPackage tcpPackage = new TcpPackage();
+        int bodyLength = tcpPackage.setBody(content);
+        tcpPackage.setHead(HeadPackageConstant.FLAG, HeadPackageConstant.CODE, HeadPackageConstant.VERSION,  bodyLength);
+        return tcpPackage;
+    }
+
 }
