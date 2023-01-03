@@ -45,13 +45,14 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
         super.channelActive(ctx);
         int i = 0;
         System.out.println("connect success address: " + ctx.channel().remoteAddress());
-        // todo 这里不知为啥发送后，client端会监听不到read 操作
-        while(true) {
+        // todo 这里不知为啥发送后，client端会监听不到read操作
+        while(i < 100) {
             if (ctx.channel().isActive()) {
                 String msg = "send msg to client part " + ++i;
-                ctx.channel().writeAndFlush(buildPackage(msg));
+                ctx.channel().write(buildPackage(msg));
             }
         }
+        ctx.flush();
     }
 
     @Override
