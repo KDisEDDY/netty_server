@@ -1,73 +1,69 @@
-package io.netty.example.packages;
+package io.netty.example.bytebufpackage;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 
+public class HeaderPackage implements IHeadPackage, Serializable {
+    private ByteBuf headBuffer = null;
 
-public class HeadPackage implements IHeadPackage,Serializable {
-    private ByteBuffer headBuffer = null;
-
-    public HeadPackage() {
-        headBuffer = ByteBuffer.allocate(LENGTH);
+    public HeaderPackage() {
+        headBuffer = Unpooled.buffer(LENGTH);
     }
 
-    public HeadPackage(ByteBuffer byteBuffer) {
+    public HeaderPackage(ByteBuf byteBuffer) {
         headBuffer = byteBuffer;
     }
-
     @Override
     public byte getAppFlags() {
         synchronized (headBuffer){
-            headBuffer.position(0);
-            return headBuffer.get();
+            return headBuffer.getByte(0);
         }
     }
 
     @Override
     public short getProtocolCode() {
         synchronized (headBuffer){
-            headBuffer.position(1);
-            return headBuffer.getShort();
+            return headBuffer.getShort(1);
         }
     }
 
     @Override
     public byte getProtocolVersion() {
         synchronized (headBuffer){
-            headBuffer.position(3);
-            return headBuffer.get();
+            return headBuffer.getByte(2);
         }
     }
 
     @Override
     public int getPackageBodyLength() {
         synchronized (headBuffer){
-            headBuffer.position(4);
-            return headBuffer.getInt();
+            return headBuffer.getInt(3);
         }
     }
 
     @Override
     public void setAppFlags(byte flags) {
         synchronized (headBuffer){
-            headBuffer.position(0);
-            headBuffer.put(flags);
+            headBuffer.writerIndex(0);
+            headBuffer.setByte(0, flags);
         }
     }
 
     @Override
     public void setProtocolCode(short code) {
         synchronized (headBuffer){
-            headBuffer.position(1);
-            headBuffer.putShort(code);
+            headBuffer.writerIndex(1);
+            headBuffer.setByte(1, code);
         }
     }
 
     @Override
     public void setProtocolVersion(byte version) {
         synchronized (headBuffer){
-            headBuffer.position(3);
-            headBuffer.put(version);
+            headBuffer.writerIndex(3);
+            headBuffer.setByte(3, version);
         }
     }
 
@@ -75,8 +71,8 @@ public class HeadPackage implements IHeadPackage,Serializable {
     @Override
     public void setPackageBodyLength(int length) {
         synchronized (headBuffer) {
-            headBuffer.position(4);
-            headBuffer.putInt(length);
+            headBuffer.writerIndex(4);
+            headBuffer.setInt(4, length);
         }
     }
 
@@ -85,7 +81,7 @@ public class HeadPackage implements IHeadPackage,Serializable {
         headBuffer = null;
     }
 
-    public ByteBuffer toByteBuffer(){
+    public ByteBuf toByteBuffer(){
         return headBuffer;
     }
 

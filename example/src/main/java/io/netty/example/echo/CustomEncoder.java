@@ -2,7 +2,7 @@ package io.netty.example.echo;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.example.packages.TcpPackage;
+import io.netty.example.bytebufpackage.TcpPackage;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 /**

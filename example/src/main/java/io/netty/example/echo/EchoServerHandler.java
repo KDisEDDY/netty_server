@@ -15,12 +15,10 @@
  */
 package io.netty.example.echo;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.example.packages.TcpPackage;
+import io.netty.example.bytebufpackage.TcpPackage;
 
 /**
  * Handler implementation for the echo server.
@@ -45,14 +43,16 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
         super.channelActive(ctx);
         int i = 0;
         System.out.println("connect success address: " + ctx.channel().remoteAddress());
-        // todo 这里不知为啥发送后，client端会监听不到read操作
-        while(i < 100) {
-            if (ctx.channel().isActive()) {
-                String msg = "send msg to client part " + ++i;
-                ctx.channel().write(buildPackage(msg));
-            }
+//        while(i < 100) {
+//            if (ctx.channel().isActive()) {
+//                String msg = "send msg to client part " + ++i;
+//                ctx.channel().writeAndFlush(buildPackage(msg));
+//            }
+//        }
+        if (ctx.channel().isActive()) {
+            String msg = "send msg to client part " + ++i;
+            ctx.channel().writeAndFlush(buildPackage(msg));
         }
-        ctx.flush();
     }
 
     @Override

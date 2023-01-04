@@ -1,18 +1,17 @@
-package io.netty.example.packages;
+package io.netty.example.bytebufpackage;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import com.sun.org.apache.bcel.internal.generic.ACONST_NULL;
-import io.netty.example.packages.bodyLinked.AbsBodyLinked;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class BodyPackage implements IBodyPackage, Serializable {
-    private ByteBuffer bodyBuffer = null;
+    private ByteBuf bodyBuffer = null;
 
-    public BodyPackage(ByteBuffer bodyBuffer) {
+    public BodyPackage(ByteBuf bodyBuffer) {
         this.bodyBuffer = bodyBuffer;
     }
 
@@ -22,7 +21,7 @@ public class BodyPackage implements IBodyPackage, Serializable {
 
     protected void initBuffer(int length) {
         if (bodyBuffer == null) {
-            bodyBuffer = ByteBuffer.allocate(length);
+            bodyBuffer = Unpooled.buffer(length);
         }
     }
 
@@ -33,26 +32,9 @@ public class BodyPackage implements IBodyPackage, Serializable {
     @Override
     public int getLength() {
         if (bodyBuffer != null) {
-            return bodyBuffer.limit();
+            return bodyBuffer.readableBytes();
         }
         return 0;
-    }
-
-    public int setBodyBuffer(AbsBodyLinked linked) {
-        reset();
-        if (linked == null) return 0;
-        int totalLength = linked.getTotalLength();
-        initBuffer(totalLength);
-        try {
-            synchronized (bodyBuffer) {
-                while (linked != null && linked.link(bodyBuffer)) {
-                    linked = linked.next();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return totalLength;
     }
 
     public int setBodyBuffer(String content) {
@@ -62,7 +44,7 @@ public class BodyPackage implements IBodyPackage, Serializable {
         initBuffer(contentBytes.length);
         try {
             synchronized (bodyBuffer) {
-                bodyBuffer.put(contentBytes);
+                bodyBuffer.writeBytes(contentBytes);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +52,7 @@ public class BodyPackage implements IBodyPackage, Serializable {
         return contentBytes.length;
     }
 
-    public ByteBuffer toByteBuffer() {
+    public ByteBuf toByteBuffer() {
         return bodyBuffer;
     }
 

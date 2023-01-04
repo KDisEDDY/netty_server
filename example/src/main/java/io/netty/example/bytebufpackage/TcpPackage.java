@@ -1,18 +1,18 @@
-package io.netty.example.packages;
+package io.netty.example.bytebufpackage;
 
-import io.netty.example.packages.bodyLinked.AbsBodyLinked;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 
 public class TcpPackage implements Serializable {
-    private HeadPackage mHeadPackage = null;
+    private HeaderPackage mHeadPackage = null;
 
     private BodyPackage mBodyPackage = null;
 
 
     public TcpPackage() {
-        mHeadPackage = new HeadPackage();
+        mHeadPackage = new HeaderPackage();
         mBodyPackage = new BodyPackage();
     }
 
@@ -30,19 +30,16 @@ public class TcpPackage implements Serializable {
     public int setBody(Object content) {
         if (content instanceof String) {
             return mBodyPackage.setBodyBuffer((String) content);
-        } else if (content instanceof AbsBodyLinked) {
-            return mBodyPackage.setBodyBuffer((AbsBodyLinked) content);
         } else {
             return 0;
         }
     }
 
-    public ByteBuffer toByteBuffer() {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(mHeadPackage.LENGTH + mBodyPackage.getLength());
-        byteBuffer.put((ByteBuffer) mHeadPackage.toByteBuffer().flip());
-        byteBuffer.position(mHeadPackage.LENGTH);
+    public ByteBuf toByteBuffer() {
+        ByteBuf byteBuffer = Unpooled.buffer(mHeadPackage.LENGTH + mBodyPackage.getLength());
+        byteBuffer.writeBytes(mHeadPackage.toByteBuffer());
         if (mBodyPackage.toByteBuffer() != null) {
-            byteBuffer.put((ByteBuffer) mBodyPackage.toByteBuffer().flip());
+            byteBuffer.writeBytes(mBodyPackage.toByteBuffer());
         }
         return byteBuffer;
     }
@@ -51,7 +48,7 @@ public class TcpPackage implements Serializable {
         return mBodyPackage;
     }
 
-    public HeadPackage getHeadPackage() {
+    public HeaderPackage getHeadPackage() {
         return mHeadPackage;
     }
 
@@ -59,7 +56,7 @@ public class TcpPackage implements Serializable {
         mBodyPackage = bodyPackage;
     }
 
-    public void setHeadPackage(HeadPackage headPackage) {
+    public void setHeadPackage(HeaderPackage headPackage) {
         mHeadPackage = headPackage;
     }
 
@@ -69,4 +66,6 @@ public class TcpPackage implements Serializable {
         result = "head:" + mHeadPackage + "  \tbody:" + mBodyPackage;
         return result;
     }
+
+
 }

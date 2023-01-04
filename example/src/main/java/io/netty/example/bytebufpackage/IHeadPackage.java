@@ -1,4 +1,4 @@
-package io.netty.example.packages;
+package io.netty.example.bytebufpackage;
 
 public interface IHeadPackage {
 
