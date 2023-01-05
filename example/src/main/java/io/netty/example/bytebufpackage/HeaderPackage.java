@@ -32,14 +32,14 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     @Override
     public byte getProtocolVersion() {
         synchronized (headBuffer){
-            return headBuffer.getByte(2);
+            return headBuffer.getByte(3);
         }
     }
 
     @Override
     public int getPackageBodyLength() {
         synchronized (headBuffer){
-            return headBuffer.getInt(3);
+            return headBuffer.getInt(4);
         }
     }
 
@@ -47,7 +47,7 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     public void setAppFlags(byte flags) {
         synchronized (headBuffer){
             headBuffer.writerIndex(0);
-            headBuffer.setByte(0, flags);
+            headBuffer.writeBytes(new byte[]{flags});
         }
     }
 
@@ -55,7 +55,7 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     public void setProtocolCode(short code) {
         synchronized (headBuffer){
             headBuffer.writerIndex(1);
-            headBuffer.setByte(1, code);
+            headBuffer.writeShort(code);
         }
     }
 
@@ -63,7 +63,7 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     public void setProtocolVersion(byte version) {
         synchronized (headBuffer){
             headBuffer.writerIndex(3);
-            headBuffer.setByte(3, version);
+            headBuffer.writeBytes(new byte[]{version});
         }
     }
 
@@ -71,8 +71,7 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     @Override
     public void setPackageBodyLength(int length) {
         synchronized (headBuffer) {
-            headBuffer.writerIndex(4);
-            headBuffer.setInt(4, length);
+            headBuffer.writeInt(length);
         }
     }
 
@@ -82,6 +81,7 @@ public class HeaderPackage implements IHeadPackage, Serializable {
     }
 
     public ByteBuf toByteBuffer(){
+        if (headBuffer != null) headBuffer.writerIndex(LENGTH);
         return headBuffer;
     }
 
